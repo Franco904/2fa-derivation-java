@@ -1,5 +1,6 @@
 package org.example.auth;
 
+import com.google.zxing.client.j2se.MatrixToImageWriter;
 import com.google.zxing.common.BitMatrix;
 import org.example.utils.CryptoUtils;
 import org.example.utils.FileUtils;
@@ -9,6 +10,7 @@ import org.example.utils.TwoFAUtils;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.IvParameterSpec;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
@@ -66,11 +68,20 @@ public class Server {
         return decryptedScryptToken;
     }
 
-    public static ServerTwoFAData create2FACode(String secret) {
+    public static String create2FACode(String secret) throws IOException {
         String totpToken = TwoFAUtils.generateTotp(secret);
         BitMatrix qrCodeMatrix = TwoFAUtils.createQRCode("https://large-type.com/#" + totpToken);
 
-        return new ServerTwoFAData(totpToken, qrCodeMatrix);
+        if (qrCodeMatrix == null) {
+            throw new IOException("Não possível criar o QR Code.");
+        }
+
+        File file = new File(FileUtils.resourcesFolder, "qr_code.png");
+        try (FileOutputStream stream = new FileOutputStream(file)) {
+            MatrixToImageWriter.writeToStream(qrCodeMatrix, "png", stream);
+        }
+
+        return totpToken;
     }
 
     public static void validate2FACode(String clientTOTP, String originalTOTP) throws Exception {

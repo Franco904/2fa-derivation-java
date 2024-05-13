@@ -1,12 +1,9 @@
 package org.example;
 
-import com.google.zxing.common.BitMatrix;
-import it.auties.qr.QrTerminal;
 import org.bouncycastle.jcajce.provider.BouncyCastleFipsProvider;
 import org.example.auth.Client;
 import org.example.auth.ClientAuthData;
 import org.example.auth.Server;
-import org.example.auth.ServerTwoFAData;
 
 import java.security.Security;
 import java.util.Scanner;
@@ -65,12 +62,7 @@ public class Main {
             String password = Server.validateUsernamePassword(clientAuthData);
 
             // TOTP auth (second factor)
-            ServerTwoFAData serverTwoFAData = Server.create2FACode(password);
-            String serverTOTP = serverTwoFAData.totpToken();
-            BitMatrix qrCodeMatrix = serverTwoFAData.qrCodeMatrix();
-
-            QrTerminal.print(qrCodeMatrix, false);
-
+            String serverTOTP = Server.create2FACode(password);
             String clientTOTP = Client.input2FA();
 
             Server.validate2FACode(clientTOTP, serverTOTP);

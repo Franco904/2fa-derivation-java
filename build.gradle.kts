@@ -21,7 +21,6 @@ dependencies {
 
     // QR Code
     implementation("com.google.zxing:javase:3.5.3")
-    implementation("com.github.auties00:qr-terminal:2.1")
 }
 
 tasks.withType<Jar> {
